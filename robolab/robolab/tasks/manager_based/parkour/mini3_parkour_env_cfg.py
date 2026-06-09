@@ -8,7 +8,7 @@ from robolab.assets.robots.roboparty import MINI3_CFG, MINI3_LINKS
 from robolab.sensors import get_link_prim_targets
 from robolab.tasks.manager_based.parkour.parkour_env_cfg import ROUGH_TERRAINS_CFG, ParkourEnvCfg
 
-MINI3_CFG.init_state.pos = (0.0, 0.0, 0.46)
+MINI3_CFG.init_state.pos = (0.0, 0.0, 0.465)
 AMP_NUM_STEPS = 3
 
 
