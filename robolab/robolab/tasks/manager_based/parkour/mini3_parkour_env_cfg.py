@@ -111,7 +111,7 @@ class MINI3ParkourRoughEnvCfg(ParkourEnvCfg):
         self.rewards.rewards.feet_at_plane.params["height_offset"] = 0.028
 
         # Terminations
-        self.terminations.base_contact.params["sensor_cfg"].body_names = "waist_yaw_link"
+        self.terminations.base_contact.params["sensor_cfg"].body_names = None #"waist_yaw_link"
         # Events
         self.events.randomize_rigid_body_com.params["asset_cfg"].body_names = ["waist_yaw_link", "base_link"]
         self.motion_data.motion_dataset.motion_data_dir = os.path.join(
