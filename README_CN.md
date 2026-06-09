@@ -74,6 +74,7 @@ python robolab/scripts/tools/list_envs.py
 
 ```bash
 python robolab/scripts/rsl_rl/train.py --task=<ENV_NAME> --headless --logger=tensorboard --num_envs=8192
+python robolab/scripts/rsl_rl/train.py --task=MINI3-Parkour --headless --logger=tensorboard --num_envs=4096 --run_name Parkour_baseline
 ```
 
 ### 测试
@@ -97,7 +98,7 @@ python robolab/scripts/rsl_rl/play_bm.py --task=RPO-BeyondMimic --num_envs=1
 ### 测试 Parkour
 
 ```bash
-python robolab/scripts/rsl_rl/play_parkour.py --task=RPO-Parkour-Play --num_envs=1
+python robolab/scripts/rsl_rl/play_parkour.py --task=MINI3-Parkour-Play --num_envs=1
 ```
 
 导出 ONNX 模型时，请设置 `num_envs=1` 并添加 `--exportonnx`：
