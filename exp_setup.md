@@ -179,6 +179,15 @@ nohup bash -lc 'CUDA_VISIBLE_DEVICES=1 python robolab/scripts/rsl_rl/train.py --
 nohup bash -lc 'CUDA_VISIBLE_DEVICES=2 python robolab/scripts/rsl_rl/train.py --task MINI3-Parkour --headless --logger=tensorboard --num_envs=4096 --max_iterations 10000 --run_name Redcue_FeetHeightOffset_0.02 >mini3_parkour_2.log 2>&1' &
 2801387
 
+nohup bash -lc 'CUDA_VISIBLE_DEVICES=3 python robolab/scripts/rsl_rl/train.py --task RPO-Parkour --headless --logger=tensorboard --num_envs=4096 --max_iterations 10000 --run_name RPO_Parkour_Baseline >pro_parkour_.log 2>&1' &
+
+nohup bash -lc 'CUDA_VISIBLE_DEVICES=4 python robolab/scripts/rsl_rl/train.py --task MINI3-Parkour --headless --logger tensorboard --num_envs 4096 --max_iterations 10000 --run_name Revise_VOLUME_POINTS_GRID >mini3_parkour_4.log 2>&1' &
+2830554
+
+nohup bash -lc 'CUDA_VISIBLE_DEVICES=5 python robolab/scripts/rsl_rl/train.py --task MINI3-Parkour --headless --logger tensorboard --num_envs 4096 --max_iterations 10000 --run_name WO_AMP >mini3_parkour_5.log 2>&1' &
+2833623
+
+
 ```
 
 

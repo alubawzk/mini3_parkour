@@ -9,3 +9,4 @@ wandb
 *.mp4
 *.out
 *.log
+exp_setup.md

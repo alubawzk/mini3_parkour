@@ -49,28 +49,16 @@ KEY_BODY_NAMES = [
     "right_elbow_yaw_link"
 ]
 
-# Shared with leg_volume_points and volume_points_penetration reward (same object so shoe / cfg edits stay in sync).
 LEG_VOLUME_POINTS_GRID = Grid3dPointsGeneratorCfg(
-    x_min=-0.05,
-    x_max=0.13,
-    x_num=19,
-    y_min=-0.03,
-    y_max=0.03,
-    y_num=7,
-    z_min=-0.04,
-    z_max=-0.02,
-    z_num=3,
+    x_min=-0.035,  x_max=0.085,  x_num=14,   # 脚跟→脚尖,~1cm 间距
+    y_min=-0.025, y_max=0.025, y_num=6,    # 脚宽
+    z_min=-0.028, z_max=-0.018, z_num=3,   # 贴脚底接触面那一薄层
 )
+
 KNEE_VOLUME_POINTS_GRID = Grid3dPointsGeneratorCfg(
-    x_min=-0.03,
-    x_max=0.04,
-    x_num=8,
-    y_min=-0.03,
-    y_max=0.03,
-    y_num=7,
-    z_min=-0.3,
-    z_max=0.0,
-    z_num=31,
+    x_min=-0.03,  x_max=0.04,  x_num=6,    # 贴 cylinder 直径
+    y_min=-0.035, y_max=0.035, y_num=6,    # ±半径
+    z_min=-0.17, z_max=-0.03, z_num=16,  # 正好覆盖 cylinder 的 z 段(中心-0.10,长0.15)
 )
 
 @configclass

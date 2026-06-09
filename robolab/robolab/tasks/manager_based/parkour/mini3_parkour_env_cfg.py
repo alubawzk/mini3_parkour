@@ -61,6 +61,8 @@ class MINI3ParkourRoughEnvCfg(ParkourEnvCfg):
             ".*_ankle_roll_link",
             ".*_knee_pitch_link",
         ]
+        self.rewards.rewards.feet_at_plane.params["height_offset"] = 0.028
+
         # Terminations
         self.terminations.base_contact.params["sensor_cfg"].body_names = "waist_yaw_link"
         # Events
