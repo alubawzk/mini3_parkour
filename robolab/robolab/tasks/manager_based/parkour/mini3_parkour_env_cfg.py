@@ -87,6 +87,7 @@ class MINI3ParkourRoughEnvCfg(ParkourEnvCfg):
         # mounting on waist_yaw_link may need offset re-calibration for MINI3.
         self.scene.camera.prim_path = "{ENV_REGEX_NS}/Robot/waist_yaw_link"
         self.scene.height_scanner.prim_path = "{ENV_REGEX_NS}/Robot/waist_yaw_link"
+        self.scene.terrain.max_init_terrain_level = 0
         # Discriminator key bodies (order preserved to match the reference motion layout)
         self.observations.disc.key_body_pos_b.params["asset_cfg"].body_names = [
             "left_ankle_roll_link",
@@ -111,9 +112,10 @@ class MINI3ParkourRoughEnvCfg(ParkourEnvCfg):
         self.rewards.rewards.feet_at_plane.params["height_offset"] = 0.028
 
         # Terminations
-        self.terminations.base_contact.params["sensor_cfg"].body_names = "base_link"
+        self.terminations.base_contact = None
         # Events
         self.events.randomize_rigid_body_com.params["asset_cfg"].body_names = ["waist_yaw_link", "base_link"]
+        self.events.reset_robot_joints.params["position_range"] = (-0.05, 0.05)
         self.motion_data.motion_dataset.motion_data_dir = os.path.join(
             ROBOLAB_ROOT_DIR, "data", "motions", "mini3_lab"
         )
@@ -173,7 +175,6 @@ class MINI3ParkourRoughEnvCfg_PLAY(MINI3ParkourRoughEnvCfg):
         self.scene.leg_volume_points.debug_vis = True
         self.scene.knee_volume_points.debug_vis = True
         self.commands.base_velocity.debug_vis = True
-        self.events.physics_material = None
         self.events.reset_robot_joints.params = {
             "position_range": (0.0, 0.0),
             "velocity_range": (0.0, 0.0),
