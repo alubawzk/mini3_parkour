@@ -8,11 +8,58 @@ from robolab.assets.robots.roboparty import MINI3_CFG, MINI3_LINKS
 from robolab.sensors import get_link_prim_targets
 from robolab.tasks.manager_based.parkour.parkour_env_cfg import ROUGH_TERRAINS_CFG, ParkourEnvCfg
 
-MINI3_CFG.init_state.pos = (0.0, 0.0, 0.43)
+MINI3_CFG.init_state.pos = (0.0, 0.0, 0.46)
 AMP_NUM_STEPS = 3
 
 
-ROUGH_TERRAINS_CFG_PLAY = copy.deepcopy(ROUGH_TERRAINS_CFG)
+def _scale_terrains_for_mini3(base_cfg):
+    """Return a copy of ``base_cfg`` with absolute (metric) terrain dimensions scaled
+    down for MINI3, which is ~half the size of RPO (init height 0.43 vs 0.85 m).
+
+    The shared ``ROUGH_TERRAINS_CFG`` is tuned for RPO; reused as-is, every metric
+    obstacle (step height, gap width, surface roughness) is ~2x harder relative to
+    MINI3's body. Only height/length quantities that set robot-relative difficulty are
+    changed here. Left untouched on purpose:
+      * ``slope_range``      -- dimensionless ratio, size-independent.
+      * ``platform_width`` / ``border_width`` / ``size`` -- scene layout, not difficulty.
+      * ``gap_depth``        -- "hole you must not step in"; keep RPO depth.
+      * ``step_width``       -- stair tread depth; shrinking it makes stairs *denser*
+                                (harder), so keep it well above the ~0.12 m foot
+                                sampling range (LEG_VOLUME_POINTS_GRID).
+    """
+
+    def _half(noise_scale):
+        # noise_scale is a float (nested perlin_cfg) or a [min, max] list (plane terrain);
+        # multiply by 0.5 so an intentionally-flat 0.0 stays 0.0.
+        if isinstance(noise_scale, (list, tuple)):
+            return type(noise_scale)(v * 0.5 for v in noise_scale)
+        return noise_scale * 0.5
+
+    cfg = copy.deepcopy(base_cfg)
+    # Finer heightfield resolution: step_width/gap are divided by horizontal_scale, so at
+    # 0.05 m a 0.05 m gap would collapse to ~1 pixel. 0.025 keeps shapes well resolved.
+    cfg.horizontal_scale = 0.025  # was 0.05
+    # vertical_scale stays 0.005: 0.03-0.10 m steps -> 6-20 height units, already fine.
+    for sub in cfg.sub_terrains.values():
+        # Stair tread height 0.05-0.20 m (up to half MINI3's leg) -> 0.03-0.10 m.
+        if hasattr(sub, "step_height_range"):
+            sub.step_height_range = (0.03, 0.10)
+        # Gap to stride over 0.1-0.40 m -> 0.05-0.20 m.
+        if hasattr(sub, "gap_distance_range"):
+            sub.gap_distance_range = (0.05, 0.20)
+        # Surface roughness amplitude on the flat/rough plane terrains ([0.0, 0.1] list).
+        if hasattr(sub, "noise_scale"):
+            sub.noise_scale = _half(sub.noise_scale)
+        # Roughness baked on top of stairs/gaps (the slope's intentional 0.0 stays 0.0).
+        if getattr(sub, "perlin_cfg", None) is not None:
+            sub.perlin_cfg.noise_scale = _half(sub.perlin_cfg.noise_scale)
+    return cfg
+
+
+MINI3_ROUGH_TERRAINS_CFG = _scale_terrains_for_mini3(ROUGH_TERRAINS_CFG)
+
+# Play variant: same scaled terrain but without walls so the robot is easy to observe.
+ROUGH_TERRAINS_CFG_PLAY = copy.deepcopy(MINI3_ROUGH_TERRAINS_CFG)
 for sub_terrain_name, sub_terrain_cfg in ROUGH_TERRAINS_CFG_PLAY.sub_terrains.items():
     sub_terrain_cfg.wall_prob = [0.0, 0.0, 0.0, 0.0]
 
@@ -23,7 +70,7 @@ class MINI3ParkourRoughEnvCfg(ParkourEnvCfg):
         # post init of parent
         super().__post_init__()
         # Scene
-        self.scene.terrain.terrain_generator = ROUGH_TERRAINS_CFG
+        self.scene.terrain.terrain_generator = MINI3_ROUGH_TERRAINS_CFG
         self.scene.robot = MINI3_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
         self.scene.camera.mesh_prim_paths.extend(get_link_prim_targets(MINI3_LINKS))
 

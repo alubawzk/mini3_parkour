@@ -40,6 +40,12 @@ parser.add_argument(
     default=False,
     help="Export EncoderActorCritic policy as separate ONNX files (depth encoder(s) + actor).",
 )
+parser.add_argument(
+    "--draw_camera_fov",
+    action="store_true",
+    default=False,
+    help="Visualize the depth camera FOV: ground ray-hit points + frustum edges (needs a GUI viewport).",
+)
 cli_args.add_rsl_rl_args(parser)
 AppLauncher.add_app_launcher_args(parser)
 args_cli, hydra_args = parser.parse_known_args()
@@ -81,6 +87,84 @@ import isaaclab_tasks  # noqa: F401
 import robolab.tasks  # noqa: F401
 
 from rsl_rl.runners import AMPRunner, DistillationRunner, OnPolicyRunner
+
+
+# Color/size constants for the FOV overlay.
+_FOV_POINT_COLOR = (0.1, 0.9, 0.1, 1.0)   # ground ray-hit points: green
+_FOV_POINT_SIZE = 6.0
+_FOV_EDGE_COLOR = (1.0, 0.55, 0.0, 1.0)   # apex->corner frustum edges: orange
+_FOV_QUAD_COLOR = (1.0, 0.9, 0.0, 1.0)    # ground footprint quad: yellow
+_FOV_LINE_WIDTH = 2.0
+
+
+def draw_camera_fov(env, draw, sensor_name="camera", point_stride=3):
+    """Draw the depth camera's FOV for every environment using Isaac Sim debug-draw.
+
+    Renders three things from the camera's ray-cast geometry (clean, pre-noise):
+      * the ground projection of (a subsample of) the camera rays -- ``ray_hits_w``;
+      * the 4 frustum edges from the camera origin to the FOV corners;
+      * the ground footprint quad connecting those 4 corner hits.
+
+    The rays are ordered row-major as ``image_shape = (height, width)``; misses come
+    back non-finite and are skipped so dangling lines/points are not drawn.
+    """
+    cam = env.unwrapped.scene.sensors[sensor_name]
+    hits = cam.ray_hits_w          # (B, N, 3) world-space ground hits
+    starts = cam._ray_starts_w     # (B, N, 3) world-space ray origins (camera center)
+    height, width = cam.image_shape
+    num_envs = hits.shape[0]
+
+    hits_g = hits.view(num_envs, height, width, 3)
+    starts_g = starts.view(num_envs, height, width, 3)
+    # corner indices in (row, col): TL, TR, BR, BL
+    corner_rc = [(0, 0), (0, width - 1), (height - 1, width - 1), (height - 1, 0)]
+
+    points, point_colors, point_sizes = [], [], []
+    line_a, line_b, line_colors, line_widths = [], [], [], []
+
+    for b in range(num_envs):
+        # ground projection points (subsampled grid)
+        pts = hits_g[b, ::point_stride, ::point_stride].reshape(-1, 3)
+        pts = pts[torch.isfinite(pts).all(dim=1)]
+        for p in pts.tolist():
+            points.append((p[0], p[1], p[2]))
+            point_colors.append(_FOV_POINT_COLOR)
+            point_sizes.append(_FOV_POINT_SIZE)
+
+        # corner apex/hit pairs, skipping any corner whose ray missed
+        corners = []
+        for r, c in corner_rc:
+            apex = starts_g[b, r, c]
+            hit = hits_g[b, r, c]
+            corners.append((apex, hit, bool(torch.isfinite(hit).all())))
+
+        # frustum edges: apex -> corner hit
+        for apex, hit, ok in corners:
+            if not ok:
+                continue
+            line_a.append(tuple(apex.tolist()))
+            line_b.append(tuple(hit.tolist()))
+            line_colors.append(_FOV_EDGE_COLOR)
+            line_widths.append(_FOV_LINE_WIDTH)
+
+        # ground footprint quad: corner hit -> next corner hit
+        for i in range(4):
+            _, hit_i, ok_i = corners[i]
+            _, hit_j, ok_j = corners[(i + 1) % 4]
+            if not (ok_i and ok_j):
+                continue
+            line_a.append(tuple(hit_i.tolist()))
+            line_b.append(tuple(hit_j.tolist()))
+            line_colors.append(_FOV_QUAD_COLOR)
+            line_widths.append(_FOV_LINE_WIDTH)
+
+    draw.clear_points()
+    draw.clear_lines()
+    if points:
+        draw.draw_points(points, point_colors, point_sizes)
+    if line_a:
+        draw.draw_lines(line_a, line_b, line_colors, line_widths)
+
 
 @hydra_task_config(args_cli.task, args_cli.agent)
 def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agent_cfg: RslRlBaseRunnerCfg):
@@ -162,6 +246,17 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     policy = torch_policy
     dt = env.unwrapped.step_dt
+
+    # optional depth-camera FOV overlay (ground hit points + frustum edges)
+    draw = None
+    if args_cli.draw_camera_fov:
+        try:
+            from isaacsim.util.debug_draw import _debug_draw
+
+            draw = _debug_draw.acquire_debug_draw_interface()
+        except Exception as exc:  # noqa: BLE001
+            print(f"[WARN] --draw_camera_fov requested but debug-draw is unavailable: {exc}")
+
     timestep = 0
     while simulation_app.is_running():
         start_time = time.time()
@@ -169,6 +264,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
             actions = policy(obs)
             obs, _, dones, _ = env.step(actions)
             policy_nn.reset(dones)
+        if draw is not None:
+            draw_camera_fov(env, draw)
         if args_cli.video:
             timestep += 1
             if timestep == args_cli.video_length:
