@@ -530,7 +530,7 @@
     <child link="left_ankle_pitch_link" />
     <origin xyz="0.0040003 -0.015 -0.214" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="-0.5236" upper="0.5236" effort="7" velocity="25.133" />
+    <limit lower="-0.5236" upper="0.5236" effort="25" velocity="25.133" />
   </joint>
 
   <joint name="left_ankle_roll_joint" type="revolute">
@@ -538,7 +538,7 @@
     <child link="left_ankle_roll_link" />
     <origin xyz="0 0 0" rpy="0 0 0" />
     <axis xyz="1 0 0" />
-    <limit lower="-0.2618" upper="0.2618" effort="7" velocity="25.133" />
+    <limit lower="-0.2618" upper="0.2618" effort="25" velocity="25.133" />
   </joint>
 
   <joint name="right_hip_pitch_joint" type="revolute">
@@ -578,7 +578,7 @@
     <child link="right_ankle_pitch_link" />
     <origin xyz="0.0040003 0.015 -0.214" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="-0.5236" upper="0.5236" effort="7" velocity="25.133" />
+    <limit lower="-0.5236" upper="0.5236" effort="25" velocity="25.133" />
   </joint>
 
   <joint name="right_ankle_roll_joint" type="revolute">
@@ -586,7 +586,7 @@
     <child link="right_ankle_roll_link" />
     <origin xyz="0 0 0" rpy="0 0 0" />
     <axis xyz="1 0 0" />
-    <limit lower="-0.2618" upper="0.2618" effort="7" velocity="25.133" />
+    <limit lower="-0.2618" upper="0.2618" effort="25" velocity="25.133" />
   </joint>
 
   <joint name="waist_yaw_joint" type="revolute">

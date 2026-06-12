@@ -1,4 +1,4 @@
-# roboparty_train
+# JOYIn MINI3 训练工作区
 
 [![IsaacSim](https://img.shields.io/badge/IsaacSim-5.1.0-silver.svg)](https://docs.omniverse.nvidia.com/isaacsim/latest/overview.html)
 [![Isaac Lab](https://img.shields.io/badge/IsaacLab-2.3.2-silver)](https://isaac-sim.github.io/IsaacLab)
@@ -13,23 +13,23 @@
 
 ## 概述
 
-`roboparty_train` 是 Roboparty 面向 RPO 运动控制策略的训练工作区。它把 Roboparty 的任务定义、动作重定向工具、MuJoCo Sim2Sim 脚本和 RSL-RL 训练入口放在上游 Isaac Lab 源码树之外，便于独立维护和同步。
+`mini3_parkour` 是 JOYIn 面向 MINI3 运动控制和 Parkour 策略的训练工作区。它把 JOYIn 的任务定义、动作重定向工具、MuJoCo Sim2Sim 脚本和 RSL-RL 训练入口放在上游 Isaac Lab 源码树之外，便于独立维护和同步。
 
 本仓库是一个轻量工作区，包含两个 Git submodule：
 
-- `robolab`：Roboparty 的 Isaac Lab 扩展、环境、脚本和机器人资产。
-- `rsl_rl`：与 Roboparty 训练流程兼容的 RSL-RL 依赖快照。
+- `robolab`：JOYIn 的 Isaac Lab 扩展、环境、脚本和以 MINI3 为主的机器人资产。
+- `rsl_rl`：与 JOYIn 训练流程兼容的 RSL-RL 依赖快照。
 
-**维护者**: RoboParty
+**维护者**: JOYIn
 **支持渠道**: GitHub Issues
 
 ## 主要特性
 
-- 基于 Isaac Lab 的 RPO 训练环境。
+- 基于 Isaac Lab 的 MINI3 Parkour 训练环境。
 - RSL-RL 训练、评估和策略导出入口。
-- AMP、BeyondMimic 和 Parkour 工作流。
+- MINI3 Parkour 工作流，并保留已有的旧版 RPO AMP 和 BeyondMimic 示例。
 - 用于策略迁移检查的 MuJoCo Sim2Sim 脚本。
-- 面向 [GMR](https://github.com/Roboparty/GMR) 数据集的动作重定向工具。
+- 面向 MINI3 和 GMR 兼容数据集的动作重定向工具。
 
 ## 环境要求
 
@@ -44,14 +44,14 @@
 请把本仓库克隆到 Isaac Lab 源码树之外。推荐使用 `--recursive`，这样 `robolab` 和 `rsl_rl` 会被一起拉取：
 
 ```bash
-git clone --recursive https://github.com/Roboparty/roboparty_train.git
-cd roboparty_train
+git clone --recursive https://github.com/JOYIn/mini3_parkour.git
+cd mini3_parkour
 ```
 
 如果已经普通克隆过仓库，并且看到 `robolab` 或 `rsl_rl` 是空目录，请手动初始化 submodule：
 
 ```bash
-cd roboparty_train
+cd mini3_parkour
 git submodule update --init --recursive
 ```
 
@@ -70,11 +70,12 @@ python robolab/scripts/tools/list_envs.py
 
 ## 用法
 
-### 训练
+### 训练 MINI3 Parkour
 
 ```bash
-python robolab/scripts/rsl_rl/train.py --task=<ENV_NAME> --headless --logger=tensorboard --num_envs=8192
-python robolab/scripts/rsl_rl/train.py --task=MINI3-Parkour --headless --logger=tensorboard --num_envs=4096 --run_name Parkour_baseline
+python robolab/scripts/rsl_rl/train.py --task=MINI3-Parkour --headless --logger=tensorboard --num_envs=2048 --run_name RemainOrientationTermination
+
+nohup bash -lc 'python robolab/scripts/rsl_rl/train.py --task MINI3-Parkour --headless --logger tensorboard --num_envs 2048 --max_iterations 10000 --run_name NoContactHeightTerminate >mini3_parkour_0.log 2>&1' &
 ```
 
 ### 测试
@@ -83,19 +84,7 @@ python robolab/scripts/rsl_rl/train.py --task=MINI3-Parkour --headless --logger=
 python robolab/scripts/rsl_rl/play.py --task=<ENV_NAME> --num_envs=1
 ```
 
-### 测试 AMP
-
-```bash
-python robolab/scripts/rsl_rl/play_amp.py --task=RPO-AMP-Play --num_envs=1
-```
-
-### 测试 BeyondMimic
-
-```bash
-python robolab/scripts/rsl_rl/play_bm.py --task=RPO-BeyondMimic --num_envs=1
-```
-
-### 测试 Parkour
+### 测试 MINI3 Parkour
 
 ```bash
 python robolab/scripts/rsl_rl/play_parkour.py --task=MINI3-Parkour-Play --num_envs=1
@@ -104,30 +93,42 @@ python robolab/scripts/rsl_rl/play_parkour.py --task=MINI3-Parkour-Play --num_en
 导出 ONNX 模型时，请设置 `num_envs=1` 并添加 `--exportonnx`：
 
 ```bash
-python robolab/scripts/rsl_rl/play_parkour.py --task=RPO-Parkour-Play --num_envs=1 --exportonnx
+python robolab/scripts/rsl_rl/play_parkour.py --task=MINI3-Parkour-Play --num_envs=1 --exportonnx
+```
+
+### 旧版 RPO AMP 和 BeyondMimic
+
+当前工作区中的 AMP 和 BeyondMimic 任务注册仍是 RPO 专用示例：
+
+```bash
+python robolab/scripts/rsl_rl/play_amp.py --task=RPO-AMP-Play --num_envs=1
+python robolab/scripts/rsl_rl/play_bm.py --task=RPO-BeyondMimic --num_envs=1
 ```
 
 ### Sim2Sim
 
+当前仓库中的 MuJoCo Sim2Sim helper 仍以 RPO 示例为主：
+
 ```bash
-python robolab/scripts/mujoco/sim2sim_rpo.py --load_model "{exported/policy.pt model full path here}"
+python robolab/scripts/mujoco/sim2sim_rpo_parkour.py --load_model "{exported/policy.pt model full path here}"
 ```
 
 ### 准备动作数据
 
-AMP 和 BeyondMimic 的数据集准备流程请参考 [GMR](https://github.com/Roboparty/GMR)。
+MINI3 的 AMP-style 训练数据可以使用 GMR 兼容的动作数据准备流程。
 
-GMR 生成的数据集关节顺序与机器人 URDF/XML 中的顺序一致，但这与 Isaac Lab 使用的顺序不同。训练前需要准备类似 `robolab/scripts/tools/retarget/config/rpo.yaml` 的关节映射文件，然后重新排列关节序列：
+GMR 生成的数据集关节顺序与机器人 URDF/XML 中的顺序一致，但这与 Isaac Lab 使用的顺序不同。训练前需要准备类似 `robolab/scripts/tools/retarget/config/mini3.yaml` 的关节映射文件，然后重新排列关节序列：
 
 ```bash
-python robolab/scripts/tools/retarget/dataset_retarget.py
+python robolab/scripts/tools/retarget/dataset_retarget.py 
+python robolab/scripts/tools/retarget/dataset_retarget.py --robot mini3 --input_dir robolab/data/motions/mini3_gmr --output_dir robolab/data/motions/mini3_lab --config_file robolab/scripts/tools/retarget/config/mini3.yaml
 ```
 
 ## 常见问题
 
 - `robolab` 或 `rsl_rl` 是空目录：执行 `git submodule update --init --recursive`。
 - 找不到 Isaac Lab 相关 import：请先激活 Isaac Lab 使用的 Python 环境，再安装或运行脚本。
-- 找不到 RPO task 名称：执行 `python robolab/scripts/tools/list_envs.py`，复制实际输出的 task id。
+- 找不到 MINI3 task 名称：执行 `python robolab/scripts/tools/list_envs.py`，复制实际输出的 task id。
 
 ## 参考和致谢
 

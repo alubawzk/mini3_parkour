@@ -1,4 +1,4 @@
-# roboparty_train
+# JOYIn MINI3 Training Workspace
 
 [![IsaacSim](https://img.shields.io/badge/IsaacSim-5.1.0-silver.svg)](https://docs.omniverse.nvidia.com/isaacsim/latest/overview.html)
 [![Isaac Lab](https://img.shields.io/badge/IsaacLab-2.3.2-silver)](https://isaac-sim.github.io/IsaacLab)
@@ -13,23 +13,23 @@
 
 ## Overview
 
-`roboparty_train` is the Roboparty training workspace for RPO locomotion policies. It keeps Roboparty task definitions, motion-retargeting tools, MuJoCo Sim2Sim scripts, and RSL-RL training entry points outside the upstream Isaac Lab tree.
+`mini3_parkour` is the JOYIn training workspace for MINI3 locomotion and parkour policies. It keeps JOYIn task definitions, motion-retargeting tools, MuJoCo Sim2Sim scripts, and RSL-RL training entry points outside the upstream Isaac Lab tree.
 
 The repository is organized as a thin workspace with two Git submodules:
 
-- `robolab`: Roboparty Isaac Lab extension, environments, scripts, and robot assets.
-- `rsl_rl`: Roboparty-compatible RSL-RL dependency snapshot.
+- `robolab`: JOYIn Isaac Lab extension, environments, scripts, and MINI3-focused robot assets.
+- `rsl_rl`: JOYIn-compatible RSL-RL dependency snapshot.
 
-**Maintainer**: RoboParty
+**Maintainer**: JOYIn
 **Support**: GitHub Issues
 
 ## Features
 
-- RPO training environments built on Isaac Lab.
+- MINI3 parkour training environments built on Isaac Lab.
 - RSL-RL training, evaluation, and policy export entry points.
-- AMP, BeyondMimic, and Parkour workflows.
+- MINI3 Parkour workflow, with legacy RPO AMP and BeyondMimic examples retained where available.
 - MuJoCo Sim2Sim scripts for policy transfer checks.
-- Motion retargeting utilities for datasets prepared with [GMR](https://github.com/Roboparty/GMR).
+- Motion retargeting utilities for MINI3 datasets prepared with GMR-compatible tools.
 
 ## Requirements
 
@@ -44,14 +44,14 @@ Install Isaac Lab by following the [official installation guide](https://isaac-s
 Clone this repository outside the Isaac Lab source tree. Use `--recursive` so that `robolab` and `rsl_rl` are populated immediately:
 
 ```bash
-git clone --recursive https://github.com/Roboparty/roboparty_train.git
-cd roboparty_train
+git clone --recursive https://github.com/JOYIn/mini3_parkour.git
+cd mini3_parkour
 ```
 
 If you already cloned the repository and `robolab` or `rsl_rl` is empty, initialize the submodules manually:
 
 ```bash
-cd roboparty_train
+cd mini3_parkour
 git submodule update --init --recursive
 ```
 
@@ -70,10 +70,10 @@ python robolab/scripts/tools/list_envs.py
 
 ## Usage
 
-### Train
+### Train MINI3 Parkour
 
 ```bash
-python robolab/scripts/rsl_rl/train.py --task=<ENV_NAME> --headless --logger=tensorboard --num_envs=8192
+python robolab/scripts/rsl_rl/train.py --task=MINI3-Parkour --headless --logger=tensorboard --num_envs=4096 --run_name Parkour_baseline
 ```
 
 ### Play
@@ -82,41 +82,40 @@ python robolab/scripts/rsl_rl/train.py --task=<ENV_NAME> --headless --logger=ten
 python robolab/scripts/rsl_rl/play.py --task=<ENV_NAME> --num_envs=1
 ```
 
-### Play AMP
+### Play MINI3 Parkour
 
 ```bash
-python robolab/scripts/rsl_rl/play_amp.py --task=RPO-AMP-Play --num_envs=1
-```
-
-### Play BeyondMimic
-
-```bash
-python robolab/scripts/rsl_rl/play_bm.py --task=RPO-BeyondMimic --num_envs=1
-```
-
-### Play Parkour
-
-```bash
-python robolab/scripts/rsl_rl/play_parkour.py --task=RPO-Parkour-Play --num_envs=1
+python robolab/scripts/rsl_rl/play_parkour.py --task=MINI3-Parkour-Play --num_envs=1
 ```
 
 To export an ONNX model, set `num_envs=1` and add `--exportonnx`:
 
 ```bash
-python robolab/scripts/rsl_rl/play_parkour.py --task=RPO-Parkour-Play --num_envs=1 --exportonnx
+python robolab/scripts/rsl_rl/play_parkour.py --task=MINI3-Parkour-Play --num_envs=1 --exportonnx
+```
+
+### Legacy RPO AMP and BeyondMimic
+
+The current AMP and BeyondMimic task registrations in this workspace are RPO-specific:
+
+```bash
+python robolab/scripts/rsl_rl/play_amp.py --task=RPO-AMP-Play --num_envs=1
+python robolab/scripts/rsl_rl/play_bm.py --task=RPO-BeyondMimic --num_envs=1
 ```
 
 ### Sim2Sim
 
+The checked-in MuJoCo Sim2Sim helpers are currently RPO-specific:
+
 ```bash
-python robolab/scripts/mujoco/sim2sim_rpo.py --load_model "{exported/policy.pt model full path here}"
+python robolab/scripts/mujoco/sim2sim_rpo_parkour.py --load_model "{exported/policy.pt model full path here}"
 ```
 
 ### Prepare Motion Data
 
-To prepare datasets for AMP and BeyondMimic, see [GMR](https://github.com/Roboparty/GMR).
+To prepare MINI3 datasets for AMP-style training, use GMR-compatible motion data.
 
-The joint order in datasets produced by GMR follows the robot URDF/XML order, which differs from the order used by Isaac Lab. Prepare a joint mapping file such as `robolab/scripts/tools/retarget/config/rpo.yaml`, then reorder the joint sequence before training:
+The joint order in datasets produced by GMR follows the robot URDF/XML order, which differs from the order used by Isaac Lab. Prepare a joint mapping file such as `robolab/scripts/tools/retarget/config/mini3.yaml`, then reorder the joint sequence before training:
 
 ```bash
 python robolab/scripts/tools/retarget/dataset_retarget.py
@@ -126,7 +125,7 @@ python robolab/scripts/tools/retarget/dataset_retarget.py
 
 - Empty `robolab` or `rsl_rl` directory: run `git submodule update --init --recursive`.
 - Missing Isaac Lab imports: activate the Python environment used by Isaac Lab before installing or running scripts.
-- Missing RPO task name: run `python robolab/scripts/tools/list_envs.py` and copy the exact task id.
+- Missing MINI3 task name: run `python robolab/scripts/tools/list_envs.py` and copy the exact task id.
 
 ## References and Thanks
 

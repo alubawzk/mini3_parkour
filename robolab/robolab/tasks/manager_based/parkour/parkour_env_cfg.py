@@ -473,6 +473,7 @@ class ParkourRewardsCfg(MultiRewardCfg):
     heading_error = RewTerm(func=mdp.heading_error, weight=-1.0, params={"command_name": "base_velocity"})
     dont_wait = RewTerm(func=mdp.dont_wait, weight=-0.5, params={"command_name": "base_velocity"})
     is_alive = RewTerm(func=mdp.is_alive, weight=3.0)
+    termination_penalty = RewTerm(func=mdp.is_terminated, weight=-100.0)
     lin_vel_z_l2 = RewTerm(func=mdp.lin_vel_z_l2, weight=-5.0)
 
     # Regularization rewards
