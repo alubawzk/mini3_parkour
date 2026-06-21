@@ -15,6 +15,13 @@
   </asset>
   <worldbody>
     <light pos="0 0 1.5" dir="0 0 -1" directional="true" />
-    <geom name="floor" size="0 0 0.05" type="plane" material="groundplane" />
+    <!-- <geom name="floor" size="0 0 0.05" type="plane" material="groundplane" /> -->
+    <geom
+      name="floor"
+      size="0 0 0.05"
+      type="plane"
+      material="groundplane"
+      friction="3.5 0.02 0.001"
+    />
   </worldbody>
 </mujoco>

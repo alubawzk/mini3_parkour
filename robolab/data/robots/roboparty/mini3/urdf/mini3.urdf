@@ -68,12 +68,12 @@
           <color rgba="0.74902353 0.74902353 0.74902353 1.00000000" />
         </material>
       </visual>
-      <!-- <collision>
-        <origin xyz="-0.0136475 0.0006817 -0.0408826" rpy="0 0 0" />
+      <collision>
+        <origin xyz="-0.0136475 0.0006817 -0.045" rpy="0 0 0" />
         <geometry>
-          <cylinder radius="0.035" length="0.1" />
+          <cylinder radius="0.035" length="0.03" />
         </geometry>
-      </collision> -->
+      </collision>
       <inertial>
         <origin xyz="-0.0103937 -0.000043 -0.0562074" rpy="0 0 0" />
         <mass value="0.478866" />
@@ -151,7 +151,8 @@
       <collision>
         <origin xyz="0.027 0 -0.018" rpy="0 0 0" />
         <geometry>
-          <box size="0.13 0.05 0.02" />
+          <!-- <box size="0.13 0.05 0.02" /> -->
+          <mesh filename="../meshes/left_ankle_roll_link.STL" />
         </geometry>
       </collision>
       <inertial>
@@ -188,12 +189,12 @@
           <color rgba="0.74902353 0.74902353 0.74902353 1.00000000" />
         </material>
       </visual>
-      <!-- <collision>
-        <origin xyz="-0.0129944 0 -0.040178" rpy="0 0 0" />
+      <collision>
+        <origin xyz="-0.0129944 0 -0.045" rpy="0 0 0" />
         <geometry>
-          <cylinder radius="0.035" length="0.1" />
+          <cylinder radius="0.035" length="0.03" />
         </geometry>
-      </collision> -->
+      </collision>
       <inertial>
         <origin xyz="-0.0103937 0.0000429 -0.0562074" rpy="0 0 0" />
         <mass value="0.478866" />
@@ -271,7 +272,8 @@
       <collision>
         <origin xyz="0.027 0 -0.018" rpy="0 0 0" />
         <geometry>
-          <box size="0.13 0.05 0.02" />
+          <!-- <box size="0.13 0.05 0.02" /> -->
+          <mesh filename="../meshes/right_ankle_roll_link.STL" />
         </geometry>
       </collision>
       <inertial>
@@ -530,7 +532,7 @@
     <child link="left_ankle_pitch_link" />
     <origin xyz="0.0040003 -0.015 -0.214" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="-0.5236" upper="0.5236" effort="25" velocity="25.133" />
+    <limit lower="-0.7" upper="0.7" effort="7" velocity="25.133" />
   </joint>
 
   <joint name="left_ankle_roll_joint" type="revolute">
@@ -538,7 +540,7 @@
     <child link="left_ankle_roll_link" />
     <origin xyz="0 0 0" rpy="0 0 0" />
     <axis xyz="1 0 0" />
-    <limit lower="-0.2618" upper="0.2618" effort="25" velocity="25.133" />
+    <limit lower="-0.518" upper="0.518" effort="7" velocity="25.133" />
   </joint>
 
   <joint name="right_hip_pitch_joint" type="revolute">
@@ -578,7 +580,7 @@
     <child link="right_ankle_pitch_link" />
     <origin xyz="0.0040003 0.015 -0.214" rpy="0 0 0" />
     <axis xyz="0 1 0" />
-    <limit lower="-0.5236" upper="0.5236" effort="25" velocity="25.133" />
+    <limit lower="-0.7" upper="0.7" effort="7" velocity="25.133" />
   </joint>
 
   <joint name="right_ankle_roll_joint" type="revolute">
@@ -586,7 +588,7 @@
     <child link="right_ankle_roll_link" />
     <origin xyz="0 0 0" rpy="0 0 0" />
     <axis xyz="1 0 0" />
-    <limit lower="-0.2618" upper="0.2618" effort="25" velocity="25.133" />
+    <limit lower="-0.518" upper="0.518" effort="7" velocity="25.133" />
   </joint>
 
   <joint name="waist_yaw_joint" type="revolute">

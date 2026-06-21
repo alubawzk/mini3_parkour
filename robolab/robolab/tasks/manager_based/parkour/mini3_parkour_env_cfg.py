@@ -106,9 +106,9 @@ class MINI3ParkourRoughEnvCfg(ParkourEnvCfg):
         ]
         self.rewards.rewards.freeze_upper_torso.params["asset_cfg"].joint_names = ["waist_yaw_joint"]
         self.rewards.rewards.pelvis_orientation_l2.params["asset_cfg"].body_names = "base_link"
-        self.rewards.rewards.termination_penalty.weight  = -500.0
-        self.rewards.rewards.track_lin_vel_xy_exp.weight =  30.0
-        self.rewards.rewards.track_ang_vel_z_exp.weight  =  30.0
+        # self.rewards.rewards.termination_penalty.weight  = -500.0
+        # self.rewards.rewards.track_lin_vel_xy_exp.weight =  30.0
+        # self.rewards.rewards.track_ang_vel_z_exp.weight  =  30.0
         self.rewards.rewards.feet_stumble.params["sensor_cfg"].body_names = [
             ".*_ankle_roll_link",
             # ".*_knee_pitch_link",
@@ -117,7 +117,8 @@ class MINI3ParkourRoughEnvCfg(ParkourEnvCfg):
 
         ### Terminations
         # self.terminations.terrain_out_bound = None
-        self.terminations.base_contact = None
+        # self.terminations.base_contact = None
+        self.terminations.base_contact.params["sensor_cfg"].body_names = ["base_link"]
         # self.terminations.bad_orientation = None
         self.terminations.root_height = None
 
