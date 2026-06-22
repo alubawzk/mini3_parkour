@@ -36,9 +36,9 @@ def _scale_terrains_for_mini3(base_cfg):
         return noise_scale * 0.5
 
     cfg = copy.deepcopy(base_cfg)
-    # Finer heightfield resolution: step_width/gap are divided by horizontal_scale, so at
-    # 0.05 m a 0.05 m gap would collapse to ~1 pixel. 0.025 keeps shapes well resolved.
-    cfg.horizontal_scale = 0.025  # was 0.05
+    # Keep the RPO terrain resolution while debugging MINI3 reset stability. 0.025
+    # quadruples the heightfield cells and makes virtual edge extraction much slower.
+    cfg.horizontal_scale = 0.05
     # vertical_scale stays 0.005: 0.03-0.10 m steps -> 6-20 height units, already fine.
     for sub in cfg.sub_terrains.values():
         # Stair tread height 0.05-0.20 m (up to half MINI3's leg) -> 0.03-0.10 m.
@@ -87,7 +87,7 @@ class MINI3ParkourRoughEnvCfg(ParkourEnvCfg):
         # mounting on waist_yaw_link may need offset re-calibration for MINI3.
         self.scene.camera.prim_path = "{ENV_REGEX_NS}/Robot/waist_yaw_link"
         self.scene.height_scanner.prim_path = "{ENV_REGEX_NS}/Robot/waist_yaw_link"
-        self.scene.terrain.max_init_terrain_level = 0
+        self.scene.terrain.max_init_terrain_level = 5
         # Discriminator key bodies (order preserved to match the reference motion layout)
         self.observations.disc.key_body_pos_b.params["asset_cfg"].body_names = [
             "left_ankle_roll_link",
