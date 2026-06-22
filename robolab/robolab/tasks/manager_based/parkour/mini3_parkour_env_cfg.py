@@ -118,13 +118,14 @@ class MINI3ParkourRoughEnvCfg(ParkourEnvCfg):
         ### Terminations
         # self.terminations.terrain_out_bound = None
         # self.terminations.base_contact = None
-        self.terminations.base_contact.params["sensor_cfg"].body_names = ["base_link"]
+        self.terminations.base_contact.params["sensor_cfg"].body_names = ["waist_yaw_link"]
         # self.terminations.bad_orientation = None
         # self.terminations.root_height = None
         self.terminations.root_height.params["minimum_height"] = 0.12
 
         ### Events
-        self.events.randomize_rigid_body_com.params["asset_cfg"].body_names = ["waist_yaw_link", "base_link"]
+        self.events.add_base_mass = None
+        self.events.randomize_rigid_body_com = None
         self.events.reset_robot_joints.params["position_range"] = (-0.05, 0.05)
         self.motion_data.motion_dataset.motion_data_dir = os.path.join(
             ROBOLAB_ROOT_DIR, "data", "motions", "mini3_lab"
