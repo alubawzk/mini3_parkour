@@ -8,7 +8,7 @@ from robolab.assets.robots.roboparty import MINI3_CFG, MINI3_LINKS
 from robolab.sensors import get_link_prim_targets
 from robolab.tasks.manager_based.parkour.parkour_env_cfg import ROUGH_TERRAINS_CFG, ParkourEnvCfg
 
-MINI3_CFG.init_state.pos = (0.0, 0.0, 0.49)
+MINI3_CFG.init_state.pos = (0.0, 0.0, 0.5)
 AMP_NUM_STEPS = 3
 
 
@@ -120,7 +120,8 @@ class MINI3ParkourRoughEnvCfg(ParkourEnvCfg):
         # self.terminations.base_contact = None
         self.terminations.base_contact.params["sensor_cfg"].body_names = ["base_link"]
         # self.terminations.bad_orientation = None
-        self.terminations.root_height = None
+        # self.terminations.root_height = None
+        self.terminations.root_height.params["minimum_height"] = 0.12
 
         ### Events
         self.events.randomize_rigid_body_com.params["asset_cfg"].body_names = ["waist_yaw_link", "base_link"]
