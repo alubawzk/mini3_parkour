@@ -109,6 +109,11 @@ class MINI3ParkourRoughEnvCfg(ParkourEnvCfg):
         # self.rewards.rewards.termination_penalty.weight  = -500.0
         self.rewards.rewards.track_lin_vel_xy_exp.weight =  15.0
         self.rewards.rewards.track_ang_vel_z_exp.weight  =  15.0
+        self.rewards.rewards.base_link_height.weight = 2.0
+        self.rewards.rewards.base_link_height.params["asset_cfg"].body_names = "base_link"
+        self.rewards.rewards.base_link_height.params["target_height"] = MINI3_CFG.init_state.pos[2]
+        self.rewards.rewards.base_link_height.params["tolerance"] = 0.05
+        self.rewards.rewards.base_link_height.params["std"] = 0.05
         self.rewards.rewards.feet_stumble.params["sensor_cfg"].body_names = [
             ".*_ankle_roll_link",
             # ".*_knee_pitch_link",

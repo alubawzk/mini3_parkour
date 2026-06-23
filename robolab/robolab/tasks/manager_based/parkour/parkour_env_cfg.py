@@ -566,6 +566,17 @@ class ParkourRewardsCfg(MultiRewardCfg):
             "height_offset": 0.035,
         },
     )
+    base_link_height = RewTerm(
+        func=mdp.body_height_in_range_exp,
+        weight=0.0,
+        params={
+            "asset_cfg": SceneEntityCfg("robot", body_names="base_link"),
+            "height_sensor_cfg": SceneEntityCfg("height_scanner"),
+            "target_height": None,
+            "tolerance": 0.05,
+            "std": 0.05,
+        },
+    )
     sound_suppression = RewTerm(
         func=mdp.sound_suppression_acc_per_foot,
         weight=-5e-4,

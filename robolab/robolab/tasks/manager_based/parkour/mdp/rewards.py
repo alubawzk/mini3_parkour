@@ -256,6 +256,42 @@ def feet_at_plane(
     return torch.sum(left_reward, dim=-1) + torch.sum(right_reward, dim=-1)
 
 
+def body_height_in_range_exp(
+    env: ManagerBasedRLEnv,
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot", body_names="base_link"),
+    height_sensor_cfg: SceneEntityCfg | None = None,
+    target_height: float | None = None,
+    tolerance: float = 0.05,
+    std: float = 0.05,
+) -> torch.Tensor:
+    """Reward a body height staying inside a target band above the nearby terrain."""
+    asset: RigidObject = env.scene[asset_cfg.name]
+    body_pos_w = asset.data.body_pos_w[:, asset_cfg.body_ids[0]]
+
+    if height_sensor_cfg is not None:
+        height_sensor = env.scene[height_sensor_cfg.name]
+        ray_hits_w = height_sensor.data.ray_hits_w
+        ray_hits_z = ray_hits_w[..., 2]
+        finite_hits = torch.isfinite(ray_hits_z)
+        dist_sq = torch.sum((ray_hits_w[..., :2] - body_pos_w[:, :2].unsqueeze(1)).square(), dim=-1)
+        dist_sq = torch.where(finite_hits, dist_sq, torch.full_like(dist_sq, float("inf")))
+        nearest_ids = torch.argmin(dist_sq, dim=1)
+        nearest_z = torch.gather(ray_hits_z, 1, nearest_ids.unsqueeze(1)).squeeze(1)
+        ground_z = torch.where(torch.any(finite_hits, dim=1), nearest_z, env.scene.env_origins[:, 2])
+    else:
+        ground_z = env.scene.env_origins[:, 2]
+
+    body_height = body_pos_w[:, 2] - ground_z
+    if target_height is None:
+        target_height_tensor = asset.data.default_root_state[:, 2]
+    else:
+        target_height_tensor = torch.full_like(body_height, target_height)
+
+    height_error = torch.abs(body_height - target_height_tensor)
+    excess_error = torch.clamp(height_error - tolerance, min=0.0)
+    return torch.exp(-excess_error.square() / std**2)
+
+
 def link_orientation(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
     """Penalize non-flat link orientation using L2 squared kernel."""
     # extract the used quantities (to enable type-hinting)
