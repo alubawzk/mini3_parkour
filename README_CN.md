@@ -93,7 +93,9 @@ python robolab/scripts/rsl_rl/play_parkour.py --task=MINI3-Parkour-Play --num_en
 导出 ONNX 模型时，请设置 `num_envs=1` 并添加 `--exportonnx`：
 
 ```bash
-python robolab/scripts/rsl_rl/play_parkour.py --task=MINI3-Parkour-Play --num_envs=1 --load_run 2026-06-22_13-13-33_Revise_HorizontalScale --exportonnx
+python robolab/scripts/rsl_rl/play_parkour.py --task MINI3-Parkour-Play --num_envs 1 --load_run 2026-06-22_18-25-14_Revise_HorizontalScale_AddVelTrack --exportonnx
+
+python robolab/scripts/rsl_rl/play_parkour.py --task MINI3-Parkour-Play --num_envs 1 --terrain_type pyramid_stairs_32_straight --load_run 2026-06-22_18-25-14_Revise_HorizontalScale_AddVelTrack --terrain_difficulty 0.2
 ```
 
 ### 旧版 RPO AMP 和 BeyondMimic

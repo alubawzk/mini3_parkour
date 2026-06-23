@@ -87,7 +87,7 @@ class MINI3ParkourRoughEnvCfg(ParkourEnvCfg):
         # mounting on waist_yaw_link may need offset re-calibration for MINI3.
         self.scene.camera.prim_path = "{ENV_REGEX_NS}/Robot/waist_yaw_link"
         self.scene.height_scanner.prim_path = "{ENV_REGEX_NS}/Robot/waist_yaw_link"
-        self.scene.terrain.max_init_terrain_level = 5
+        self.scene.terrain.max_init_terrain_level = 3
         # Discriminator key bodies (order preserved to match the reference motion layout)
         self.observations.disc.key_body_pos_b.params["asset_cfg"].body_names = [
             "left_ankle_roll_link",
@@ -107,8 +107,8 @@ class MINI3ParkourRoughEnvCfg(ParkourEnvCfg):
         self.rewards.rewards.freeze_upper_torso.params["asset_cfg"].joint_names = ["waist_yaw_joint"]
         self.rewards.rewards.pelvis_orientation_l2.params["asset_cfg"].body_names = "base_link"
         # self.rewards.rewards.termination_penalty.weight  = -500.0
-        # self.rewards.rewards.track_lin_vel_xy_exp.weight =  30.0
-        # self.rewards.rewards.track_ang_vel_z_exp.weight  =  30.0
+        self.rewards.rewards.track_lin_vel_xy_exp.weight =  15.0
+        self.rewards.rewards.track_ang_vel_z_exp.weight  =  15.0
         self.rewards.rewards.feet_stumble.params["sensor_cfg"].body_names = [
             ".*_ankle_roll_link",
             # ".*_knee_pitch_link",
