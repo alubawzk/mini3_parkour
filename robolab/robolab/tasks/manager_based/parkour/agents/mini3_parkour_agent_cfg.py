@@ -80,7 +80,7 @@ class MINI3ParkourAmpRunnerCfg(RslRlOnPolicyRunnerCfg):
             amp_discriminator=RslRlAmpCfg.AMPDiscriminatorCfg(
                 hidden_dims=[1024, 512],
                 activation="ReLU",
-                style_reward_scale=2.0,
+                style_reward_scale=3.0,
                 task_style_lerp=0.3,
             ),
             loss_type="LSGAN",
