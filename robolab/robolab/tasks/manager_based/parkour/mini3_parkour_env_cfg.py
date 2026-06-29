@@ -129,9 +129,14 @@ class MINI3ParkourRoughEnvCfg(ParkourEnvCfg):
         self.terminations.root_height.params["minimum_height"] = 0.12
 
         ### Events
-        self.events.add_base_mass = None
-        self.events.randomize_rigid_body_com = None
-        self.events.reset_robot_joints.params["position_range"] = (-0.05, 0.05)
+        # MINI3's base_link is about 1 kg, so keep this much smaller than the RPO default.
+        self.events.add_base_mass.params["asset_cfg"].body_names = ["waist_yaw_link"]
+        self.events.add_base_mass.params["mass_distribution_params"] = (-0.3, 0.3)
+        self.events.add_base_mass.params["operation"] = "add"
+        self.events.randomize_rigid_body_com.params["asset_cfg"].body_names = ["waist_yaw_link"]
+        self.events.randomize_rigid_body_com.params["com_range"] = {"x": (-0.05, 0.1), "y": (-0.05, 0.05), "z": (-0.05, 0.05)}
+        self.events.reset_robot_joints.params["position_range"] = (-0.15, 0.15)
+
         self.motion_data.motion_dataset.motion_data_dir = os.path.join(
             ROBOLAB_ROOT_DIR, "data", "motions", "mini3_lab"
         )

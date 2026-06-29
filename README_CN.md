@@ -95,7 +95,12 @@ python robolab/scripts/rsl_rl/play_parkour.py --task=MINI3-Parkour-Play --num_en
 ```bash
 python robolab/scripts/rsl_rl/play_parkour.py --task MINI3-Parkour-Play --num_envs 1 --load_run 2026-06-22_18-25-14_Revise_HorizontalScale_AddVelTrack --exportonnx
 
-python robolab/scripts/rsl_rl/play_parkour.py --task MINI3-Parkour-Play --num_envs 1 --terrain_type pyramid_stairs_32_straight --load_run 2026-06-22_18-25-14_Revise_HorizontalScale_AddVelTrack --terrain_difficulty 0.2
+python robolab/scripts/rsl_rl/play_parkour.py --task MINI3-Parkour-Play --num_envs 1 --terrain_type square_gaps_straight --load_run 2026-06-23_10-50-01_Reduce_TaskReward_AddTargetHeight --terrain_difficulty 0.2 --keyboard  --exportonnx
+
+
+python robolab/scripts/mujoco/sim2sim_mini3_parkour.py \
+  --depth_encoder logs/rsl_rl/mini3_parkour/2026-06-23_10-50-01_Reduce_TaskReward_AddTargetHeight/exported/0-depth_encoder.onnx \
+  --actor logs/rsl_rl/mini3_parkour/2026-06-23_10-50-01_Reduce_TaskReward_AddTargetHeight/exported/actor.onnx
 ```
 
 ### 旧版 RPO AMP 和 BeyondMimic

@@ -714,7 +714,7 @@ class EventCfg:
         mode="startup",
         params={
             "asset_cfg": SceneEntityCfg("robot", joint_names=[".*_joint"]),
-            "friction_distribution_params": (1.0, 1.0),
+            "friction_distribution_params": (0.8, 1.2),
             "armature_distribution_params": (0.8, 1.2),
             "operation": "scale",
         },

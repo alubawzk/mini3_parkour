@@ -58,6 +58,18 @@ parser.add_argument("--keyboard_ang_step", type=float, default=0.1, help="Keyboa
 parser.add_argument("--keyboard_max_lin_vel", type=float, default=1.0, help="Keyboard linear velocity clamp in m/s.")
 parser.add_argument("--keyboard_max_ang_vel", type=float, default=1.5, help="Keyboard yaw velocity clamp in rad/s.")
 parser.add_argument(
+    "--debug_command",
+    action="store_true",
+    default=False,
+    help="Print commanded and measured base velocities during play.",
+)
+parser.add_argument(
+    "--debug_command_interval",
+    type=int,
+    default=50,
+    help="Policy steps between --debug_command prints.",
+)
+parser.add_argument(
     "--terrain_type",
     type=str,
     default=None,
@@ -440,10 +452,24 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                 actions = policy(obs)
                 obs, _, dones, _ = env.step(actions)
                 policy_nn.reset(dones)
+            if args_cli.debug_command and args_cli.debug_command_interval > 0 and timestep % args_cli.debug_command_interval == 0:
+                robot = env.unwrapped.scene["robot"]
+                command = env.unwrapped.command_manager.get_command("base_velocity")
+                cmd = command[0].detach().cpu().tolist()
+                lin_vel = robot.data.root_lin_vel_b[0].detach().cpu().tolist()
+                ang_vel = robot.data.root_ang_vel_b[0].detach().cpu().tolist()
+                action_min = torch.min(actions[0]).item()
+                action_max = torch.max(actions[0]).item()
+                print(
+                    "[DebugCommand] "
+                    f"cmd=({cmd[0]:+.3f}, {cmd[1]:+.3f}, {cmd[2]:+.3f}) "
+                    f"vel=({lin_vel[0]:+.3f}, {lin_vel[1]:+.3f}, wz={ang_vel[2]:+.3f}) "
+                    f"action=[{action_min:+.3f}, {action_max:+.3f}]"
+                )
             if draw is not None:
                 draw_camera_fov(env, draw)
+            timestep += 1
             if args_cli.video:
-                timestep += 1
                 if timestep == args_cli.video_length:
                     break
 
