@@ -91,6 +91,21 @@ def joint_deviation_l1(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = Scene
     return torch.sum(torch.abs(angle), dim=1)
 
 
+def weighted_joint_deviation_l1(
+    env: ManagerBasedRLEnv,
+    asset_cfg1: SceneEntityCfg,
+    asset_cfg2: SceneEntityCfg,
+    weight1: float = 1.0,
+    weight2: float = 1.0,
+) -> torch.Tensor:
+    """Penalize two joint groups for deviating from their default positions."""
+    asset1: Articulation = env.scene[asset_cfg1.name]
+    asset2: Articulation = env.scene[asset_cfg2.name]
+    angle1 = asset1.data.joint_pos[:, asset_cfg1.joint_ids] - asset1.data.default_joint_pos[:, asset_cfg1.joint_ids]
+    angle2 = asset2.data.joint_pos[:, asset_cfg2.joint_ids] - asset2.data.default_joint_pos[:, asset_cfg2.joint_ids]
+    return weight1 * torch.sum(torch.abs(angle1), dim=1) + weight2 * torch.sum(torch.abs(angle2), dim=1)
+
+
 def left_thigh_yaw_joint_sign_l1(
     env: ManagerBasedRLEnv,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),

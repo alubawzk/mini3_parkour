@@ -1,11 +1,13 @@
 import copy
 import os
 
+from isaaclab.managers import SceneEntityCfg
 from isaaclab.utils import configclass
 
 from robolab import ROBOLAB_ROOT_DIR
 from robolab.assets.robots.roboparty import MINI3_CFG, MINI3_LINKS
 from robolab.sensors import get_link_prim_targets
+import robolab.tasks.manager_based.parkour.mdp as mdp
 from robolab.tasks.manager_based.parkour.parkour_env_cfg import ROUGH_TERRAINS_CFG, ParkourEnvCfg
 
 MINI3_CFG.init_state.pos = (0.0, 0.0, 0.5)
@@ -99,11 +101,14 @@ class MINI3ParkourRoughEnvCfg(ParkourEnvCfg):
         ]
 
         ### Rewards
-        self.rewards.rewards.joint_deviation_upper_body.params["asset_cfg"].joint_names = [
-            ".*_shoulder_.*_joint",
-            ".*_elbow_.*_joint",
-            "waist_yaw_joint",
-        ]
+        self.rewards.rewards.joint_deviation_upper_body.func = mdp.weighted_joint_deviation_l1
+        self.rewards.rewards.joint_deviation_upper_body.weight = -0.05
+        self.rewards.rewards.joint_deviation_upper_body.params = {
+            "asset_cfg1": SceneEntityCfg("robot", joint_names=[".*_shoulder_.*_joint"]),
+            "asset_cfg2": SceneEntityCfg("robot", joint_names=[".*_elbow_.*_joint"]),
+            "weight1": 1.0,
+            "weight2": 1.0,
+        }
         self.rewards.rewards.freeze_upper_torso.params["asset_cfg"].joint_names = ["waist_yaw_joint"]
         self.rewards.rewards.pelvis_orientation_l2.params["asset_cfg"].body_names = "base_link"
         # self.rewards.rewards.termination_penalty.weight  = -500.0
